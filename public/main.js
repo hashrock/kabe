@@ -2,7 +2,6 @@ new Vue({
   el: "#app",
   data: {
     files: [],
-    msg: "test",
     offset: null,
     selected: null,
     orig: { x: 0, y: 0 },
@@ -22,8 +21,6 @@ new Vue({
       const obj = this.files;
       const method = "POST";
       const body = JSON.stringify(obj);
-      console.log(obj);
-      console.log(body);
       const headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -40,36 +37,38 @@ new Vue({
       }
     },
   },
-  mounted() {
-    fetch("./assets/index.json")
-      .then((i) => i.json())
-      .then((i) => {
-        this.files = i;
-      })
-      .catch((e) => {})
-      .finally(() => {
-        fetch("/files")
-          .then((i) => i.json())
-          .then((i) => {
-            let idx = 0;
-            for (const f of i) {
-              // if (
-              //   this.files.find((o) => {
-              //     return o.name === f.name;
-              //   })
-              // ) {
-              //   continue;
-              // }
-              this.files.push({
-                file: f,
-                pos: {
-                  x: 200 * (idx % 10),
-                  y: 100 * Math.floor(idx / 10),
-                },
-              });
-              idx++;
-            }
-          });
-      });
+  async mounted() {
+    const res = await fetch("./assets/index.json");
+    if (res.ok) {
+      const files = await res.json();
+      for (const f of files) {
+        if (
+          !this.files.find((item) => {
+            return item.file === f.file;
+          })
+        ) {
+          this.files.push(f);
+        }
+      }
+    }
+    const filesRes = await fetch("/files");
+    const newFiles = await filesRes.json();
+
+    for (const f of newFiles) {
+      if (
+        !this.files.find((o) => {
+          return o.file === f.file;
+        })
+      ) {
+        this.files.push({
+          file: f,
+          pos: {
+            x: 200 * (idx % 10),
+            y: 100 * Math.floor(idx / 10),
+          },
+        });
+        idx++;
+      }
+    }
   },
 });
