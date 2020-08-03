@@ -40,6 +40,19 @@ app.post("/files", (req, res) => {
   fs.writeFileSync("./public/assets/index.json", JSON.stringify(req.body));
 });
 
+app.delete("/files/:filename", (req, res) => {
+  var dir = "./public/trash/";
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  fs.renameSync(
+    "./public/assets/" + req.params.filename,
+    "./public/trash/" + req.params.filename
+  );
+  res.send("success");
+});
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });

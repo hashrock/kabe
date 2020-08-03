@@ -11,6 +11,13 @@ new Vue({
       if (this.selected) {
         const index = this.files.indexOf(this.selected);
         this.files.splice(index, 1);
+
+        const method = "DELETE";
+        fetch("./files/" + this.selected.file, { method })
+          .then((res) => res.text())
+          .then(console.log)
+          .catch(console.error);
+
         this.selected = null;
       }
     },
@@ -45,7 +52,6 @@ new Vue({
   },
   async mounted() {
     document.addEventListener("paste", (event) => {
-      console.log(event);
       var items = event.clipboardData.items;
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
