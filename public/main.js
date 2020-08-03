@@ -7,6 +7,13 @@ new Vue({
     orig: { x: 0, y: 0 },
   },
   methods: {
+    ondelete() {
+      if (this.selected) {
+        const index = this.files.indexOf(this.selected);
+        this.files.splice(index, 1);
+        this.selected = null;
+      }
+    },
     down(obj, e) {
       this.offset = { x: e.offsetX, y: e.offsetY };
       this.selected = obj;
@@ -16,7 +23,6 @@ new Vue({
     },
     up(e) {
       this.offset = null;
-      this.selected = null;
 
       const obj = this.files;
       const method = "POST";
@@ -38,6 +44,25 @@ new Vue({
     },
   },
   async mounted() {
+    document.addEventListener("paste", (event) => {
+      console.log(event);
+      var items = event.clipboardData.items;
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        if (item.type.indexOf("image") != -1) {
+          var file = item.getAsFile();
+          var formData = new FormData();
+          formData.append("file", file);
+          fetch("/upload", { method: "POST", body: formData })
+            .then((e) => e.json())
+            .then((json) => {
+              console.log(json);
+              this.files.push({ file: json.file, pos: { x: 100, y: 100 } });
+            });
+        }
+      }
+    });
+
     const res = await fetch("./assets/index.json");
     if (res.ok) {
       const files = await res.json();
@@ -53,7 +78,7 @@ new Vue({
     }
     const filesRes = await fetch("/files");
     const newFiles = await filesRes.json();
-
+    let idx = 0;
     for (const f of newFiles) {
       if (
         !this.files.find((o) => {

@@ -12,13 +12,16 @@
         touch-action: none;
       }
       .selected {
-        opacity: 0.5;
+        outline: 3px solid white;
+      }
+      svg {
+        outline: none;
       }
     </style>
   </head>
   <body>
     <div id="app">
-      <svg width="4000" height="4000">
+      <svg width="4000" height="4000" tabindex="0" @keydown.delete="ondelete">
         <image
           :class="{selected: selected === f}"
           :x="f.pos.x"

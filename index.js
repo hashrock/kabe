@@ -2,6 +2,24 @@ const express = require("express");
 var bodyParser = require("body-parser");
 const app = express();
 const port = 3000;
+var multer = require("multer");
+var path = require("path");
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/assets");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); //Appending extension
+  },
+});
+
+var upload = multer({ storage: storage });
+app.post("/upload", upload.single("file"), function (req, res, next) {
+  res.json({
+    file: req.file.filename,
+  });
+});
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
